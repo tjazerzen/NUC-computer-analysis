@@ -9,6 +9,7 @@ from orodja import (
     zapisi_csv,
     zapisi_json
 )
+from utils import get_OS, get_proizvajalca, stevilo_dni_od_danasnjega_dneva
 
 DATA_RAW_DIRECTORY = 'podatki_raw'  # mapa, v katero bomo shranili podatke
 VSILI_PRENOS_SPLETNE_STRANI = False  # True, če želimo na novo downloadati raw podatke; False sicer
@@ -43,7 +44,28 @@ vzorec_kupona = re.compile(
 )
 
 vzorec_ocene = re.compile(
-    r'<span class="a-icon-alt">(?P<ocena>.*?) out of 5 stars</span>'
+    r'<span class="a-icon-alt">'
+    r'(?P<ocena>.*?)'
+    r' out of 5 stars</span>'
+    r'.*?'
+    r'customerReviews"><span class="a-size-base .*?">'
+    r'(?P<stevilo_ocen>.*?)'
+    r'</span>'
+)
+
+vzorec_dneva_dostave = re.compile(
+    r'<span aria-label="Get it (?P<dan_dostave>.*?, .*?)">'
+)
+
+vzorec_amazon_choice = re.compile(
+    r'<span class="a-badge-label-inner a-text-ellipsis">'
+    r'<span class="a-badge-text" data-a-badge-color="sx-cloud">'
+    r'Amazon\'s .*?Choice'
+    r'</span></span>'
+)
+
+vzorec_sponzoriran_produkt = re.compile(
+    r'<span class="a-color-base">Sponsored</span>'
 )
 
 
@@ -73,6 +95,16 @@ def izloci_podatke_nuca(blok):
     if re.search(vzorec_ocene, blok):
         nuc = dict(nuc, **vzorec_ocene.search(blok).groupdict())
     nuc.setdefault("ocena", -1)
+    nuc.setdefault("stevilo_ocen", 0)
+    if re.search(vzorec_dneva_dostave, blok):
+        seznam_datumov = vzorec_dneva_dostave.search(blok).groupdict()["dan_dostave"].split(" - ")
+        st_dni = stevilo_dni_od_danasnjega_dneva(seznam_datumov)
+        nuc["cas_dostave"] = st_dni
+    nuc.setdefault("cas_dostave", -1)
+    nuc["amazons_choice"] = True if re.search(vzorec_amazon_choice, blok) else False
+    nuc["produkt_sponzoriran"] = True if re.search(vzorec_sponzoriran_produkt, blok) else False
+    nuc["proizvajalec"] = get_proizvajalca(nuc["opis"])
+    nuc["OS"] = get_OS(nuc["opis"])
     return nuc
 
 
