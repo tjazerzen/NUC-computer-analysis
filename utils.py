@@ -5,6 +5,21 @@ import datetime
 
 DAN_BRANJA_PODATKOV = datetime.date(2022, 11, 8)
 
+MOZNE_VREDNOSTI_SSDja = [
+    1,
+    2,
+    16,
+    32,
+    64,
+    128,
+    240,
+    256,
+    500,
+    512,
+    1000,
+    1024,
+]
+
 MESECI_MAPPING = dict(
     Jan="01",
     Feb="02",

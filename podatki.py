@@ -9,7 +9,12 @@ from orodja import (
     zapisi_csv,
     zapisi_json
 )
-from utils import get_OS, get_proizvajalca, stevilo_dni_od_danasnjega_dneva
+from utils import (
+    get_OS,
+    get_proizvajalca,
+    stevilo_dni_od_danasnjega_dneva,
+    MOZNE_VREDNOSTI_SSDja
+)
 
 DATA_RAW_DIRECTORY = 'podatki_raw'  # mapa, v katero bomo shranili podatke
 VSILI_PRENOS_SPLETNE_STRANI = False  # True, če želimo na novo downloadati raw podatke; False sicer
@@ -68,6 +73,9 @@ vzorec_sponzoriran_produkt = re.compile(
     r'<span class="a-color-base">Sponsored</span>'
 )
 
+vzorec_ssd_velikost = f'({"|".join([str(velikost) for velikost in MOZNE_VREDNOSTI_SSDja])})'
+
+
 
 def _url_spletne_strani(st_strani):
     return (
@@ -80,6 +88,15 @@ def _url_spletne_strani(st_strani):
 
 def _ime_raw_strani(st_strani):
     return os.path.join(DATA_RAW_DIRECTORY, f"nuc{st_strani}.html")
+
+
+def get_ssd(opis_naprave):
+    opis_naprave = opis_naprave.lower()
+    for najden_vzorec in re.compile(r'ssd').finditer(opis_naprave):
+        print(opis_naprave[najden_vzorec.span()[0]-15: najden_vzorec.span()[1]+15])
+    if re.search(r'ssd', opis_naprave) and re.search(vzorec_ssd_velikost, opis_naprave):
+        print(opis_naprave)
+    return 'unknown'
 
 
 def izloci_podatke_nuca(blok):
@@ -105,6 +122,7 @@ def izloci_podatke_nuca(blok):
     nuc["produkt_sponzoriran"] = True if re.search(vzorec_sponzoriran_produkt, blok) else False
     nuc["proizvajalec"] = get_proizvajalca(nuc["opis"])
     nuc["OS"] = get_OS(nuc["opis"])
+    get_ssd(nuc["opis"])
     return nuc
 
 
