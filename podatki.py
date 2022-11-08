@@ -13,6 +13,7 @@ from orodja import (
 DATA_RAW_DIRECTORY = 'podatki_raw'  # mapa, v katero bomo shranili podatke
 VSILI_PRENOS_SPLETNE_STRANI = False  # True, če želimo na novo downloadati raw podatke; False sicer
 STEVILO_STRANI = 19  # Preveril ročno
+# Datum branja podatkov. Potreboval ga bom za računanje, čez približno koliko bi dni bi napravo dostavili
 
 vzorec_bloka = re.compile(
     r'<div data-asin=".*?" '
@@ -26,7 +27,6 @@ vzorec_bloka = re.compile(
     r'(</div>){7,12}'
 )
 
-# ?P<Username>
 vzorec_nuca_s_ceno = re.compile(
     r'<span class="a-size-medium a-color-base a-text-normal">(?P<opis>.*?)</span>'
     r'.*?<span class="a-offscreen">€(?P<cena>.*?)</span>'
@@ -61,9 +61,6 @@ def _ime_raw_strani(st_strani):
 
 
 def izloci_podatke_nuca(blok):
-    # opis = vzorec_imena.search(blok)
-    # print(opis)
-    # print(nuc['cena'])
     try:
         nuc = vzorec_nuca_s_ceno.search(blok).groupdict()
     except AttributeError:
@@ -71,7 +68,6 @@ def izloci_podatke_nuca(blok):
         nuc = vzorec_nuca_brez_cene.search(blok).groupdict()
         nuc.setdefault("cena", -1)
     if re.search(vzorec_kupona, blok):
-        # print("Našel vzorec kupona!")
         nuc = dict(nuc, **vzorec_kupona.search(blok).groupdict())
     nuc.setdefault("vrednost_kupona", 0)  # NUC-om brez kupona pripišem, da ima kupon vrednost 0
     if re.search(vzorec_ocene, blok):
@@ -93,9 +89,6 @@ def nuci_na_strani(st_strani):
         )
     vsebina = vsebina_datoteke(ime_datoteke)
     for blok in vzorec_bloka.finditer(vsebina):
-        # print(type(blok.group(0)))
-        # print(blok.span()[0], blok.span()[1])
-        # print(vsebina[blok.span()[0]: blok.span()[1]])
         yield izloci_podatke_nuca(blok.group(0))
 
 
