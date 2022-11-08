@@ -14,8 +14,6 @@ DATA_RAW_DIRECTORY = 'podatki_raw'  # mapa, v katero bomo shranili podatke
 VSILI_PRENOS_SPLETNE_STRANI = False  # True, če želimo na novo downloadati raw podatke; False sicer
 STEVILO_STRANI = 19  # Preveril ročno
 
-# v eni vrstici:
-r'<div data-asin=".*?" data-index="[1-9][0-9]?" data-uuid=".*?" data-component-type=(""|"s-search-result") class="s-result-item .*?sg-col-0-of-12 sg-col-16-of-20 .*?sg-col .*?s-widget-spacing-(small|large).*?"><div class="sg-col-inner">(.|\n)*?(<\/div>){7,12}'
 vzorec_bloka = re.compile(
     r'<div data-asin=".*?" '
     r'data-index="[1-9][0-9]?" '
