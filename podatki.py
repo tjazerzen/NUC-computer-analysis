@@ -42,6 +42,10 @@ vzorec_nuca_brez_cene = re.compile(
     r'<span class="a-size-medium a-color-base a-text-normal">(?P<opis>.*?)</span>'
 )
 
+vzorec_idja = re.compile(
+    r'<div data-asin="(?P<id>.*?)" data-index="(.|..)" data-uuid=".*?"'
+)
+
 vzorec_kupona = re.compile(
     r'<span class="a-size-base s-highlighted-text-padding aok-inline-block s-coupon-highlight-color">'
     r'Save €(?P<vrednost_kupona>.*?)'
@@ -106,6 +110,7 @@ def izloci_podatke_nuca(blok):
         # Empirično sem ugotovil, da nekateri NUC-i nimajo predpisane cene. To razrešim z try/except blokom
         nuc = vzorec_nuca_brez_cene.search(blok).groupdict()
         nuc.setdefault("cena", -1)
+    nuc = dict(nuc, **vzorec_idja.search(blok).groupdict())
     if re.search(vzorec_kupona, blok):
         nuc = dict(nuc, **vzorec_kupona.search(blok).groupdict())
     nuc.setdefault("vrednost_kupona", 0)  # NUC-om brez kupona pripišem, da ima kupon vrednost 0
