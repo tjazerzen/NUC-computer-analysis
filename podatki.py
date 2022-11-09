@@ -112,7 +112,6 @@ vzorec_ram_stevilka_pred_besedo = re.compile(r'(?P<ram>...)( )?(gb|g) (ram|ddr4)
 vzorec_ram_stevilka_po_besedi = re.compile(r'(ram|ddr4)(:)?[^ ] (?P<ram>...)')
 
 
-
 def _url_spletne_strani(st_strani):
     return (
         "https://www.amazon.de/-/en/"
@@ -205,10 +204,10 @@ def get_proizvajalca(opis_naprave):
     return 'unknown'
 
 
-
 def get_ssd(opis_naprave):
     def _convert_digit_to_ssd(ssd_parsed_digit):
-        return ssd_parsed_digit*GIGABYTE_TO_TERABYTE if ssd_parsed_digit in (1, 2) else ssd_parsed_digit
+        return ssd_parsed_digit * GIGABYTE_TO_TERABYTE if ssd_parsed_digit in (1, 2) else ssd_parsed_digit
+
     opis_naprave = opis_naprave.lower()
     if re.search(r'ssd', opis_naprave) and re.search(vzorec_ssd_velikost, opis_naprave):
         if re.search(vzorec_ssd_stevilka_po_besedi_ssd, opis_naprave):
@@ -298,7 +297,26 @@ def main():
     for st_strani in range(1, STEVILO_STRANI + 1):
         for nuc in nuci_na_strani(st_strani):
             nuci.append(nuc)
-    print(nuci)
+    zapisi_csv(
+        nuci,
+        [
+            'opis',
+            'cena',
+            'id',
+            'vrednost_kupona',
+            'ocena',
+            'stevilo_ocen',
+            'cas_dostave',
+            'amazons_choice',
+            'produkt_sponzoriran',
+            'proizvajalec',
+            'OS',
+            'ssd',
+            'ram'
+        ],
+        'obdelani-podatki/nuci.csv'
+
+    )
 
 
 if __name__ == '__main__':
