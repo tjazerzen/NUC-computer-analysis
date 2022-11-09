@@ -20,6 +20,7 @@ DATA_RAW_DIRECTORY = 'podatki_raw'  # mapa, v katero bomo shranili podatke
 VSILI_PRENOS_SPLETNE_STRANI = False  # True, če želimo na novo downloadati raw podatke; False sicer
 STEVILO_STRANI = 19  # Preveril ročno
 # Datum branja podatkov. Potreboval ga bom za računanje, čez približno koliko bi dni bi napravo dostavili
+GIGABYTE_TO_TERABYTE = 1024
 
 vzorec_bloka = re.compile(
     r'<div data-asin=".*?" '
@@ -78,6 +79,12 @@ vzorec_sponzoriran_produkt = re.compile(
 )
 
 vzorec_ssd_velikost = f'({"|".join([str(velikost) for velikost in MOZNE_VREDNOSTI_SSDja])})'
+vzorec_ssd_stevilka_po_besedi_ssd = re.compile(r'ssd: (?P<ssd>.*?)gb')
+vzorec_ssd_stevilka_pred_besedo_ssd = re.compile(r'(?P<ssd>....)( )?(gb|tb) (pcie|nvme|pcle)?( )?ssd')
+vzorec_ssd_m2_ssd = re.compile(r'(ddr4|lpddr4,) (?P<ssd>.*?)(gb|tb|g) m.2 .*?ssd')
+
+vzorec_ram_stevilka_pred_besedo = re.compile(r'(?P<ram>...)( )?(gb|g) (ram|ddr4)')
+vzorec_ram_stevilka_po_besedi = re.compile(r'(ram|ddr4)(:)?[^ ] (?P<ram>...)')
 
 
 
@@ -95,12 +102,40 @@ def _ime_raw_strani(st_strani):
 
 
 def get_ssd(opis_naprave):
+    def _convert_digit_to_ssd(ssd_parsed_digit):
+        return ssd_parsed_digit*GIGABYTE_TO_TERABYTE if ssd_parsed_digit in (1, 2) else ssd_parsed_digit
     opis_naprave = opis_naprave.lower()
-    for najden_vzorec in re.compile(r'ssd').finditer(opis_naprave):
-        print(opis_naprave[najden_vzorec.span()[0]-15: najden_vzorec.span()[1]+15])
     if re.search(r'ssd', opis_naprave) and re.search(vzorec_ssd_velikost, opis_naprave):
-        print(opis_naprave)
+        if re.search(vzorec_ssd_stevilka_po_besedi_ssd, opis_naprave):
+            ssd_digit = int(vzorec_ssd_stevilka_po_besedi_ssd.search(opis_naprave).groupdict().get("ssd"))
+            ssd = _convert_digit_to_ssd(ssd_digit)
+        elif re.search(vzorec_ssd_stevilka_pred_besedo_ssd, opis_naprave):
+            ssd_raw = vzorec_ssd_stevilka_pred_besedo_ssd.search(opis_naprave).groupdict().get("ssd")
+            ssd_digit = int(re.sub("[^0-9]", "", ssd_raw.split(" ")[-1]))
+            ssd = _convert_digit_to_ssd(ssd_digit)
+        elif re.search(vzorec_ssd_m2_ssd, opis_naprave):
+            ssd_digit = int(vzorec_ssd_m2_ssd.search(opis_naprave).groupdict().get("ssd").strip("ram "))
+            ssd = _convert_digit_to_ssd(ssd_digit)
+        else:
+            ssd = 'unknown'
+        return ssd
     return 'unknown'
+
+
+def get_ram(opis_naprave):
+    opis_naprave = opis_naprave.lower()
+    if re.search(vzorec_ram_stevilka_pred_besedo, opis_naprave):
+        ram_raw = vzorec_ram_stevilka_pred_besedo.search(opis_naprave).groupdict("ram").get("ram")
+        return int(re.sub("[^0-9]", "", ram_raw))
+    elif re.search(vzorec_ram_stevilka_po_besedi, opis_naprave):
+        ram_raw = vzorec_ram_stevilka_po_besedi.search(opis_naprave).groupdict("ram").get("ram")
+        try:
+            int(re.sub("[^0-9]", "", ram_raw))
+        except ValueError:
+            return 'unknown'
+    else:  # re.search(r'barebone', opis_naprave) or re.search(r'(no ram|without ram)', opis_naprave) or not
+        # re.search(r'(ram|ddr4)', opis_naprave)
+        return 'unknown'
 
 
 def izloci_podatke_nuca(blok):
@@ -127,7 +162,9 @@ def izloci_podatke_nuca(blok):
     nuc["produkt_sponzoriran"] = True if re.search(vzorec_sponzoriran_produkt, blok) else False
     nuc["proizvajalec"] = get_proizvajalca(nuc["opis"])
     nuc["OS"] = get_OS(nuc["opis"])
-    get_ssd(nuc["opis"])
+    nuc["ssd"] = get_ssd(nuc["opis"])
+    nuc["ram"] = get_ram(nuc["opis"])
+    print(nuc)
     return nuc
 
 
@@ -154,7 +191,6 @@ def main():
     3. Podatke shrani v csv datoteko
     """
     nuci = []
-    STEVILO_STRANI_TEMP = 1
     for st_strani in range(1, STEVILO_STRANI + 1):
         for nuc in nuci_na_strani(st_strani):
             nuci.append(nuc)
