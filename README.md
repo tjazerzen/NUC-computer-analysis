@@ -9,7 +9,6 @@ Za vsak NUC bom zajel:
 * Če kje piše, koliko je posamičnih računalnikov še na zalogi
 * SSD
 * RAM
-* Koliko jederen je procesor
 * Ocena
 * Če je nuc sponzoriran `(bool)`
 
