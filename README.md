@@ -5,11 +5,10 @@ V okviru predmeta Programiranje 1 bom preučil računalnike NUC (Next Unit of Co
 Za vsak NUC bom zajel:
 * Ime, s katerim je na amazonu predstavljen
 * Cena
-* Če lahko unovčimo kak kupon `(bool)`
+* Vrednost kupona, ki ga lahko unovčimo ob nakupu naprave (`0`, če ni kupona)
 * Če kje piše, koliko je posamičnih računalnikov še na zalogi
 * SSD
 * RAM
-* Koliko jederen je procesor
 * Ocena
 * Če je nuc sponzoriran `(bool)`
 
