@@ -1,4 +1,4 @@
-UNKNOWN_VALUE = UNKNOWN_VALUE
+UNKNOWN_VALUE = "unknown"
 
 MESECI_MAPPING = dict(
     Jan="01",
