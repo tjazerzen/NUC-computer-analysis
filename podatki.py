@@ -238,6 +238,7 @@ def get_ram(opis_naprave):
 def izloci_podatke_nuca(blok):
     try:
         nuc = vzorec_nuca_s_ceno.search(blok).groupdict()
+        nuc['cena'] = float(nuc['cena'].replace(",", ""))
     except AttributeError:
         # Empirično sem ugotovil, da nekateri NUC-i nimajo predpisane cene. To razrešim z try/except blokom
         nuc = vzorec_nuca_brez_cene.search(blok).groupdict()
