@@ -1,51 +1,34 @@
-import requests
 import re
 import os
-import csv
 import datetime
 from orodja import (
-    pripravi_imenik,
     shrani_spletno_stran,
     vsebina_datoteke,
     zapisi_csv,
-    zapisi_json
+)
+
+from utils import (
+    MESECI_MAPPING,
+    MOZNE_VREDNOSTI_SSDja,
+    PROIZVAJALEC_MAPPING,
+    RAM_MAPPING,
+    OS_MAPPING,
+    SSD_MAPPING,
+    UNKNOWN_VALUE,
 )
 
 DATA_RAW_DIRECTORY = 'podatki_raw'  # mapa, v katero bomo shranili podatke
+DATA_OBDELANI_DIRECTORY = 'obdelani-podatki'
 VSILI_PRENOS_SPLETNE_STRANI = False  # True, če želimo na novo downloadati raw podatke; False sicer
 STEVILO_STRANI = 19  # Preveril ročno
 # Datum branja podatkov. Potreboval ga bom za računanje, čez približno koliko bi dni bi napravo dostavili
 GIGABYTE_TO_TERABYTE = 1024
 DAN_BRANJA_PODATKOV = datetime.date(2022, 11, 8)
-MOZNE_VREDNOSTI_SSDja = [
-    1,
-    2,
-    16,
-    32,
-    64,
-    128,
-    240,
-    256,
-    500,
-    512,
-    1000,
-    1024,
-]
 
-MESECI_MAPPING = dict(
-    Jan="01",
-    Feb="02",
-    Mar="03",
-    Apr="04",
-    May="05",
-    Jun="06",
-    Jul="07",
-    Aug="08",
-    Sep="09",
-    Oct="10",
-    Nov="11",
-    Dec="12",
-)
+PODATKI_POMOZNIH_TABEL = [
+    (PROIZVAJALEC_MAPPING, "proizvajalec", "proizvajalci"), (RAM_MAPPING, "ram", "ram"),
+    (SSD_MAPPING, "ssd", "ssd"), (OS_MAPPING, "operacijski_sistem", "operacijski_sistem")
+]
 
 vzorec_bloka = re.compile(
     r'<div data-asin=".*?" '
@@ -131,7 +114,7 @@ def get_OS(opis_naprave):
         return 'Linux'
     elif re.search(r'barebone', opis_naprave):
         return 'no OS'
-    return 'unknown'
+    return UNKNOWN_VALUE
 
 
 def _ime_raw_strani(st_strani):
@@ -201,7 +184,7 @@ def get_proizvajalca(opis_naprave):
         return 'Fujitsu'
     elif re.search(r'mele', opis_naprave):
         return 'MeLE'
-    return 'unknown'
+    return UNKNOWN_VALUE
 
 
 def get_ssd(opis_naprave):
@@ -221,9 +204,19 @@ def get_ssd(opis_naprave):
             ssd_digit = int(vzorec_ssd_m2_ssd.search(opis_naprave).groupdict().get("ssd").strip("ram "))
             ssd = _convert_digit_to_ssd(ssd_digit)
         else:
-            ssd = 'unknown'
+            ssd = UNKNOWN_VALUE
         return ssd
-    return 'unknown'
+    return UNKNOWN_VALUE
+
+
+def _id_kolicine(ime_kolicine):
+    return f"{ime_kolicine}_id"
+
+
+def vrni_pomozne_tabele(mapping, ime_kolicine):
+    """Uporabljeno na spremenljivkah PROIZVAJALEC_MAPPING, RAM_MAPPING, SSD_MAPPING"""
+    return [{_id_kolicine(ime_kolicine): oznaka_kolicine, ime_kolicine: kolicina}
+            for kolicina, oznaka_kolicine in mapping.items()]
 
 
 def get_ram(opis_naprave):
@@ -234,12 +227,12 @@ def get_ram(opis_naprave):
     elif re.search(vzorec_ram_stevilka_po_besedi, opis_naprave):
         ram_raw = vzorec_ram_stevilka_po_besedi.search(opis_naprave).groupdict("ram").get("ram")
         try:
-            int(re.sub("[^0-9]", "", ram_raw))
+            return int(re.sub("[^0-9]", "", ram_raw))
         except ValueError:
-            return 'unknown'
+            return UNKNOWN_VALUE
     else:  # re.search(r'barebone', opis_naprave) or re.search(r'(no ram|without ram)', opis_naprave) or not
         # re.search(r'(ram|ddr4)', opis_naprave)
-        return 'unknown'
+        return UNKNOWN_VALUE
 
 
 def izloci_podatke_nuca(blok):
@@ -264,10 +257,10 @@ def izloci_podatke_nuca(blok):
     nuc.setdefault("cas_dostave", -1)
     nuc["amazons_choice"] = True if re.search(vzorec_amazon_choice, blok) else False
     nuc["produkt_sponzoriran"] = True if re.search(vzorec_sponzoriran_produkt, blok) else False
-    nuc["proizvajalec"] = get_proizvajalca(nuc["opis"])
-    nuc["OS"] = get_OS(nuc["opis"])
-    nuc["ssd"] = get_ssd(nuc["opis"])
-    nuc["ram"] = get_ram(nuc["opis"])
+    nuc[_id_kolicine("proizvajalec")] = PROIZVAJALEC_MAPPING[get_proizvajalca(nuc["opis"])]
+    nuc[_id_kolicine("OS")] = OS_MAPPING[get_OS(nuc["opis"])]
+    nuc[_id_kolicine("ssd")] = SSD_MAPPING[get_ssd(nuc["opis"])]
+    nuc[_id_kolicine("ram")] = RAM_MAPPING[get_ram(nuc["opis"])]
     return nuc
 
 
@@ -309,14 +302,19 @@ def main():
             'cas_dostave',
             'amazons_choice',
             'produkt_sponzoriran',
-            'proizvajalec',
-            'OS',
-            'ssd',
-            'ram'
+            'proizvajalec_id',
+            'OS_id',
+            'ssd_id',
+            'ram_id'
         ],
         'obdelani-podatki/nuci.csv'
-
     )
+    for mapping, ime_kolicine, ime_tabele in PODATKI_POMOZNIH_TABEL:
+        zapisi_csv(
+            vrni_pomozne_tabele(mapping, ime_kolicine),
+            [_id_kolicine(ime_kolicine), ime_kolicine],
+            f"{DATA_OBDELANI_DIRECTORY}/{ime_tabele}.csv"
+        )
 
 
 if __name__ == '__main__':
