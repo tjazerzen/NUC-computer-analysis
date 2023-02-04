@@ -1,14 +1,10 @@
-import requests
 import re
 import os
-import csv
 import datetime
 from orodja import (
-    pripravi_imenik,
     shrani_spletno_stran,
     vsebina_datoteke,
     zapisi_csv,
-    zapisi_json
 )
 
 from utils import (
