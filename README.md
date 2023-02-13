@@ -3,7 +3,7 @@
 V okviru predmeta Programiranje 1 bom preučil računalnike NUC (Next Unit of Computing) na [nemškem Amazonu](https://www.amazon.de/-/en/s?k=nuc&page=2&crid=3VIZDYTXC6EN7&qid=1666151008&sprefix=n%2Caps%2C187&ref=sr_pg_2).
 Zajel bom 400 računalnikov, ki se mi ob iskanju besede *nuc* pojavijo pod iskalnimi rezultati.
 
-V [glavni datoteki](obdelani_podatki/nuci.csv) se nahajajo:
+V **obdelani_podatki/nuci.csv** se nahajajo:
 * Njegov ID (`string`)
 * Opis, s katerim je NUC na amazonu predstavljen (`string`)
 * Cena (`float`)
@@ -17,19 +17,19 @@ V [glavni datoteki](obdelani_podatki/nuci.csv) se nahajajo:
 
 Potem so v ostalih pomožnih datotekah podatki razporejeni na naslednji način. 
 
-V datoteki [obdelani_podatki/operacijski_sistem.csv](obdelani_podatki/operacijski_sistem.csv) se nahajajo:
+V datoteki **obdelani_podatki/operacijski_sistem.csv** se nahajajo:
 * ID operacijskega sistema
 * Ime operacijskega sistema
 
-V datoteki [obdelani_podatki/proizvajalci.csv](obdelani_podatki/proizvajalci.csv) se nahajajo:
+V datoteki **obdelani_podatki/proizvajalci.csv** se nahajajo:
 * ID proizvajalca
 * Ime proizvajalca
 
-V datoteki [obdelani_podatki/ram.csv](obdelani_podatki/ram.csv) se nahajajo:
+V datoteki **obdelani_podatki/ram.csv** se nahajajo:
 * ID RAM-a
 * Količina RAM-a pod tem ID-jem
 
-V datoteki [obdelani_podatki/ssd.csv](obdelani_podatki/ssd.csv) se nahajajo:
+V datoteki **obdelani_podatki/ssd.csv** se nahajajo:
 * ID SSD-ja
 * Količina SSD-ja pod tem ID-jem
 
