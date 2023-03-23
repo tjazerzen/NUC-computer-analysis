@@ -35,7 +35,6 @@ In the file **obdelani_podatki/ssd.csv** se nahajajo:
 
 Working hypotheses:
 * At a similar price, are Intel's NUCs (which are supposed to be the leaders in this category) comparable to the others? How many computers does intel sell compared to all other manufacturers?
-* How does NUC's price grow
 * How does the price of a NUC increase with increasing RAM and SSD?
 * How does delivery time vary between computers? How does delivery time affect its rating?
 * How are the various data attributes (price, coupon value, number of ratings, delivery time, ...) correlated with each other?
