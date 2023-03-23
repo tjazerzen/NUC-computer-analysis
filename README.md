@@ -22,8 +22,8 @@ In the file **obdelani_podatki/operacijski_sistem.csv**:
 * Name of the operating system
 
 In the file **obdelani_podatki/proizvajalci.csv**:
-* ID proizvajalca
-* Ime proizvajalca
+* ID of the NUC producer
+* Name of the NUC producer
 
 In the file **obdelani_podatki/ram.csv** se nahajajo:
 * ID of the RAM
