@@ -1,6 +1,6 @@
 # analiza NUC računalnikov
 
-In the scope of the Programming 1 course, I will be studying NUC (Next Unit of Computing) computers on the [german Amazon](https://www.amazon.de/s?k=nuc&page=2&language=en&crid=3VIZDYTXC6EN7&qid=1666151008&sprefix=n%2Caps%2C187&ref=sr_pg_2).
+In the scope of the Programming 1 course, I will be studying NUC (Next Unit of Computing) computers on the [amazon.de](https://www.amazon.de/s?k=nuc&page=2&language=en&crid=3VIZDYTXC6EN7&qid=1666151008&sprefix=n%2Caps%2C187&ref=sr_pg_2).
 I will be analyzing 400 computers that appear in the search results when searching for the term nuc.
 
 The table **obdelani_podatki/nuci.csv** contains the following information:
