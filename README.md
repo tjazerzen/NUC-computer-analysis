@@ -1,4 +1,4 @@
-# analiza NUC računalnikov
+# NUC Computer Analysis
 
 I will be studying NUC (Next Unit of Computing) computers on the [amazon.de](https://www.amazon.de/s?k=nuc&page=2&language=en&crid=3VIZDYTXC6EN7&qid=1666151008&sprefix=n%2Caps%2C187&ref=sr_pg_2).
 I will be analyzing 400 computers that appear in the search results when searching for the term nuc.
