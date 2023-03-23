@@ -6,7 +6,7 @@ I will be analyzing 400 computers that appear in the search results when searchi
 The table **obdelani_podatki/nuci.csv** contains the following information:
 * Its ID (string)
 * The description with which the NUC is presented on Amazon (`string`)
-* The price1 (`float`)
+* The price (`float`)
 * The value of the coupon that can be redeemed when purchasing the device (`float`)
 * The SSD of the computer (extracted with regular expressions from the description) (`int`)
 * The RAM of the computer (extracted with regular expressions from the description) (`int`)
